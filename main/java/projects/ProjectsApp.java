@@ -13,11 +13,11 @@ import projects.service.ProjectService;
 
 public class ProjectsApp {
 	private ProjectService projectService;
-	private List<String> operations = List.of("1) Add a project", "2) List projects", "3) Select a project", "4) Update project details");
+	private List<String> operations = List.of("1) Add a project", "2) List projects", "3) Select a project",
+			"4) Update project details");
 	private Scanner scanner = new Scanner(System.in);
-	
-	
-	private Project curProject;
+
+	Project curProject;
 
 	public ProjectsApp() {
 		projectService = new ProjectService();
@@ -53,13 +53,13 @@ public class ProjectsApp {
 					System.out.println("\n" + selection + " is not a valid selection. Try again.");
 					break;
 				}
-			} catch(Exception e) {
-				  System.out.println("\nError: " + e + " Try again.");
-				  e.printStackTrace();
-				}
-
+			} catch (Exception e) {
+				System.out.println("\nError: " + e + " Try again.");
+				e.printStackTrace();
 			}
+
 		}
+	}
 
 	private void updateProjectDetails() {
 		// TODO Auto-generated method stub
@@ -68,32 +68,34 @@ public class ProjectsApp {
 			return;
 		}
 		System.out.println("\nProject details:");
-		String projectName = 
-			getStringInput("Enter project name: " + curProject.getProjectName());
-		String projectId =
-			getStringInput("Enter project id: " + curProject.getProjectId());
-		String estimatedHours = 
-			getStringInput("Enter estimated hours: " + curProject.getEstimatedHours());
-		String actualHours =
-			getStringInput("Enter actual hours " + curProject.getActualHours());
-		String difficulty =
-			getStringInput("Enter difficulty: " + curProject.getDifficulty());
-		String notes = 
-			getStringInput("Enter notes: " + curProject.getNotes());
-	
-		//Project project = new Project();
-		//project.setProjectName(Objects.nonNull(projectName)
-			//=? curProject.getProjectName() : projectName);
-	}
+		String projectName = getStringInput("Enter project name: " + curProject.getProjectName());
+		String projectId = getStringInput("Enter project id: " + curProject.getProjectId());
+		String estimatedHours = getStringInput("Enter estimated hours: " + curProject.getEstimatedHours());
+		String actualHours = getStringInput("Enter actual hours " + curProject.getActualHours());
+		String difficulty = getStringInput("Enter difficulty: " + curProject.getDifficulty());
+		String notes = getStringInput("Enter notes: " + curProject.getNotes());
 
+		Project project = new Project();
+
+		project.setProjectName(Objects.isNull(projectName) ? curProject.getProjectName() : projectName);
+		project.setProjectId(Objects.isNull(projectId) ? curProject.getProjectId() : Integer.parseInt(projectId));
+		project.setEstimatedHours(
+				Objects.isNull(estimatedHours) ? curProject.getEstimatedHours() : new BigDecimal(estimatedHours));
+		project.setActualHours(Objects.isNull(actualHours) ? curProject.getActualHours() : new BigDecimal(actualHours));
+		project.setDifficulty(Objects.isNull(difficulty) ? curProject.getDifficulty() : Integer.parseInt(difficulty));
+		project.setNotes(Objects.isNull(notes) ? curProject.getNotes() : notes);
+
+		project.setProjectId(curProject.getProjectId());
+		projectService.modifyProjectDetails(project);
+		curProject = projectService.fetchProjectById(curProject.getProjectId());
+	}
 
 	private void selectProject() {
 		// TODO Auto-generated method stub
 		listProjects();
-		Integer projectId = getIntInput("Enter a project ID to select a project:");
-		scanner.nextLine();
+		Integer projectId = getIntInput("Enter a project ID to select a project");
 		curProject = null;
-		
+
 		try {
 			curProject = projectService.fetchProjectById(projectId);
 			System.out.println("Project selected: " + curProject.getProjectName());
@@ -101,13 +103,12 @@ public class ProjectsApp {
 			System.out.println("Invalid project ID. Please try again.");
 		}
 	}
-	
-	
+
 	private void listProjects() {
 		// TODO Auto-generated method stub
 		List<Project> projects = projectService.fetchAllProjects();
 		System.out.println("\nProjects:");
-		
+
 		projects.forEach(
 				project -> System.out.println("  " + project.getProjectId() + ": " + project.getProjectName()));
 	}
@@ -126,8 +127,8 @@ public class ProjectsApp {
 		project.setDifficulty(difficulty);
 		project.setNotes(notes);
 
-		//Project dbProject = projectService.addProject(project);
-		System.out.println("You have successfully created a new project. ");
+		Project dbProject = projectService.addProject(project);
+		System.out.println("You have successfully created a new project. " + dbProject);
 	}
 
 	private BigDecimal getDecimalInput(String string) {
@@ -185,7 +186,7 @@ public class ProjectsApp {
 		}
 	}
 
-	public Project getCurProject() {	
+	public Project getCurProject() {
 		return curProject;
 	}
 
